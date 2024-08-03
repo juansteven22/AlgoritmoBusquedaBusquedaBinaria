@@ -8,6 +8,7 @@ public class BusquedaBinariaGUI extends JFrame {
     private JTextField searchField;
     private JButton searchButton;
     private JButton nextButton;
+    private JButton resetButton;
     private JPanel arrayPanel;
     private JLabel statusLabel;
     private int[] array;
@@ -34,8 +35,14 @@ public class BusquedaBinariaGUI extends JFrame {
         searchButton = new JButton("Iniciar Búsqueda");
         searchPanel.add(searchButton);
 
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout());
         nextButton = new JButton("Siguiente Paso");
         nextButton.setEnabled(false);
+        buttonPanel.add(nextButton);
+        resetButton = new JButton("Reiniciar");
+        resetButton.setEnabled(false);
+        buttonPanel.add(resetButton);
 
         arrayPanel = new JPanel();
         arrayPanel.setPreferredSize(new Dimension(550, 200));
@@ -45,11 +52,12 @@ public class BusquedaBinariaGUI extends JFrame {
         add(inputPanel, BorderLayout.NORTH);
         add(searchPanel, BorderLayout.CENTER);
         add(arrayPanel, BorderLayout.SOUTH);
-        add(nextButton, BorderLayout.EAST);
+        add(buttonPanel, BorderLayout.EAST);
         add(statusLabel, BorderLayout.WEST);
 
         searchButton.addActionListener(e -> iniciarBusqueda());
         nextButton.addActionListener(e -> siguientePaso());
+        resetButton.addActionListener(e -> reiniciar());
     }
 
     private void iniciarBusqueda() {
@@ -69,7 +77,10 @@ public class BusquedaBinariaGUI extends JFrame {
 
         actualizarVisualizacion();
         nextButton.setEnabled(true);
+        resetButton.setEnabled(true);
         searchButton.setEnabled(false);
+        inputField.setEnabled(false);
+        searchField.setEnabled(false);
         statusLabel.setText("Búsqueda iniciada. Presione 'Siguiente Paso'");
     }
 
@@ -96,6 +107,18 @@ public class BusquedaBinariaGUI extends JFrame {
             statusLabel.setText("El valor no se encuentra en el arreglo.");
             nextButton.setEnabled(false);
         }
+    }
+
+    private void reiniciar() {
+        inputField.setEnabled(true);
+        searchField.setEnabled(true);
+        searchButton.setEnabled(true);
+        nextButton.setEnabled(false);
+        resetButton.setEnabled(false);
+        statusLabel.setText("Ingrese los números y el valor a buscar");
+        arrayPanel.removeAll();
+        arrayPanel.revalidate();
+        arrayPanel.repaint();
     }
 
     private void actualizarVisualizacion() {
