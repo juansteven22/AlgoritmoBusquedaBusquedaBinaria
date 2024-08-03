@@ -6,13 +6,17 @@ import java.util.Arrays;
 public class BusquedaBinariaGUI extends JFrame {
     private JTextField inputField;
     private JTextField searchField;
-    private JTextArea resultArea;
     private JButton searchButton;
+    private JButton nextButton;
+    private JPanel arrayPanel;
+    private JLabel statusLabel;
     private int[] array;
+    private int left, right, mid, target;
+    private int step;
 
     public BusquedaBinariaGUI() {
-        setTitle("Búsqueda Binaria");
-        setSize(400, 300);
+        setTitle("Búsqueda Binaria Visual");
+        setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -27,72 +31,99 @@ public class BusquedaBinariaGUI extends JFrame {
         searchPanel.add(new JLabel("Número a buscar:"));
         searchField = new JTextField(10);
         searchPanel.add(searchField);
-        searchButton = new JButton("Buscar");
+        searchButton = new JButton("Iniciar Búsqueda");
         searchPanel.add(searchButton);
 
-        resultArea = new JTextArea(10, 30);
-        resultArea.setEditable(false);
+        nextButton = new JButton("Siguiente Paso");
+        nextButton.setEnabled(false);
+
+        arrayPanel = new JPanel();
+        arrayPanel.setPreferredSize(new Dimension(550, 200));
+
+        statusLabel = new JLabel("Ingrese los números y el valor a buscar");
 
         add(inputPanel, BorderLayout.NORTH);
         add(searchPanel, BorderLayout.CENTER);
-        add(new JScrollPane(resultArea), BorderLayout.SOUTH);
+        add(arrayPanel, BorderLayout.SOUTH);
+        add(nextButton, BorderLayout.EAST);
+        add(statusLabel, BorderLayout.WEST);
 
-        searchButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                buscar();
-            }
-        });
+        searchButton.addActionListener(e -> iniciarBusqueda());
+        nextButton.addActionListener(e -> siguientePaso());
     }
 
-    private void buscar() {
+    private void iniciarBusqueda() {
         String input = inputField.getText();
         String[] numbers = input.split(",");
         array = new int[numbers.length];
         for (int i = 0; i < numbers.length; i++) {
             array[i] = Integer.parseInt(numbers[i].trim());
         }
-        
-        // Ordenar el arreglo (necesario para la búsqueda binaria)
         Arrays.sort(array);
 
-        int target = Integer.parseInt(searchField.getText());
-        int result = busquedaBinaria(array, target);
+        target = Integer.parseInt(searchField.getText());
+        left = 0;
+        right = array.length - 1;
+        mid = (left + right) / 2;
+        step = 0;
 
-        if (result != -1) {
-            resultArea.setText("El número " + target + " se encontró en la posición " + result + 
-                               " del arreglo ordenado.\nArreglo ordenado: " + Arrays.toString(array));
+        actualizarVisualizacion();
+        nextButton.setEnabled(true);
+        searchButton.setEnabled(false);
+        statusLabel.setText("Búsqueda iniciada. Presione 'Siguiente Paso'");
+    }
+
+    private void siguientePaso() {
+        if (left <= right) {
+            mid = left + (right - left) / 2;
+
+            if (array[mid] == target) {
+                statusLabel.setText("¡Encontrado en el índice " + mid + "!");
+                nextButton.setEnabled(false);
+                return;
+            }
+
+            if (array[mid] < target) {
+                left = mid + 1;
+                statusLabel.setText("El valor en el medio es menor. Moviendo a la derecha.");
+            } else {
+                right = mid - 1;
+                statusLabel.setText("El valor en el medio es mayor. Moviendo a la izquierda.");
+            }
+
+            actualizarVisualizacion();
         } else {
-            resultArea.setText("El número " + target + " no se encontró en el arreglo.\n" + 
-                               "Arreglo ordenado: " + Arrays.toString(array));
+            statusLabel.setText("El valor no se encuentra en el arreglo.");
+            nextButton.setEnabled(false);
         }
     }
 
-    private int busquedaBinaria(int[] arr, int target) {
-        int izquierda = 0;
-        int derecha = arr.length - 1;
+    private void actualizarVisualizacion() {
+        arrayPanel.removeAll();
+        arrayPanel.setLayout(new GridLayout(1, array.length, 5, 5));
 
-        while (izquierda <= derecha) {
-            int medio = izquierda + (derecha - izquierda) / 2;
+        for (int i = 0; i < array.length; i++) {
+            JPanel cellPanel = new JPanel();
+            cellPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            JLabel label = new JLabel(String.valueOf(array[i]));
+            cellPanel.add(label);
 
-            if (arr[medio] == target) {
-                return medio;
+            if (i == left) {
+                cellPanel.setBackground(Color.GREEN);
+            } else if (i == right) {
+                cellPanel.setBackground(Color.RED);
+            } else if (i == mid) {
+                cellPanel.setBackground(Color.YELLOW);
             }
 
-            if (arr[medio] < target) {
-                izquierda = medio + 1;
-            } else {
-                derecha = medio - 1;
-            }
+            arrayPanel.add(cellPanel);
         }
 
-        return -1;
+        arrayPanel.revalidate();
+        arrayPanel.repaint();
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new BusquedaBinariaGUI().setVisible(true);
-            }
-        });
+        SwingUtilities.invokeLater(() -> new BusquedaBinariaGUI().setVisible(true));
     }
 }
