@@ -11,6 +11,7 @@ public class BusquedaBinariaPanel extends JPanel {
     private JButton resetButton;
     private JPanel arrayPanel;
     private JLabel statusLabel;
+    private JTextArea operationsArea;
     private int[] array;
     private int left, right, mid, target;
 
@@ -38,13 +39,21 @@ public class BusquedaBinariaPanel extends JPanel {
         buttonPanel.add(resetButton);
 
         arrayPanel = new JPanel();
-        arrayPanel.setPreferredSize(new Dimension(750, 200));
+        arrayPanel.setPreferredSize(new Dimension(750, 100));
 
         statusLabel = new JLabel("Ingrese los números y el valor a buscar");
 
+        operationsArea = new JTextArea(10, 60);
+        operationsArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(operationsArea);
+
+        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel.add(arrayPanel, BorderLayout.NORTH);
+        southPanel.add(scrollPane, BorderLayout.CENTER);
+
         add(inputPanel, BorderLayout.NORTH);
         add(searchPanel, BorderLayout.CENTER);
-        add(arrayPanel, BorderLayout.SOUTH);
+        add(southPanel, BorderLayout.SOUTH);
         add(buttonPanel, BorderLayout.EAST);
         add(statusLabel, BorderLayout.WEST);
 
@@ -74,30 +83,45 @@ public class BusquedaBinariaPanel extends JPanel {
         inputField.setEnabled(false);
         searchField.setEnabled(false);
         statusLabel.setText("Búsqueda iniciada. Presione 'Siguiente Paso'");
+        
+        operationsArea.setText("Arreglo ordenado: " + Arrays.toString(array) + "\n");
+        operationsArea.append("Valor a buscar: " + target + "\n");
+        operationsArea.append("Inicialización:\n");
+        operationsArea.append("left = 0\n");
+        operationsArea.append("right = " + (array.length - 1) + "\n");
+        operationsArea.append("mid = (left + right) / 2 = " + mid + "\n");
     }
 
     private void siguientePaso() {
         if (left <= right) {
             mid = left + (right - left) / 2;
 
+            operationsArea.append("\nPaso actual:\n");
+            operationsArea.append("mid = left + (right - left) / 2 = " + left + " + (" + right + " - " + left + ") / 2 = " + mid + "\n");
+            operationsArea.append("Comparando array[" + mid + "] (" + array[mid] + ") con target (" + target + ")\n");
+
             if (array[mid] == target) {
                 statusLabel.setText("¡Encontrado en el índice " + mid + "!");
                 nextButton.setEnabled(false);
+                operationsArea.append("¡Encontrado! array[" + mid + "] == " + target + "\n");
                 return;
             }
 
             if (array[mid] < target) {
                 left = mid + 1;
                 statusLabel.setText("El valor en el medio es menor. Moviendo a la derecha.");
+                operationsArea.append("array[" + mid + "] < " + target + ", actualizando left = mid + 1 = " + left + "\n");
             } else {
                 right = mid - 1;
                 statusLabel.setText("El valor en el medio es mayor. Moviendo a la izquierda.");
+                operationsArea.append("array[" + mid + "] > " + target + ", actualizando right = mid - 1 = " + right + "\n");
             }
 
             actualizarVisualizacion();
         } else {
             statusLabel.setText("El valor no se encuentra en el arreglo.");
             nextButton.setEnabled(false);
+            operationsArea.append("\nBúsqueda terminada. El valor no se encuentra en el arreglo.\n");
         }
     }
 
@@ -111,6 +135,7 @@ public class BusquedaBinariaPanel extends JPanel {
         arrayPanel.removeAll();
         arrayPanel.revalidate();
         arrayPanel.repaint();
+        operationsArea.setText("");
     }
 
     private void actualizarVisualizacion() {
